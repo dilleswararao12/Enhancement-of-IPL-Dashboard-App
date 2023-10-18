@@ -1,7 +1,8 @@
 // Write your code here
 import {Component} from 'react'
+import {PieChart, Pie, Legend, Cell, ResponsiveContainer} from 'recharts'
 import Loader from 'react-loader-spinner'
-
+import {Link} from 'react-router-dom'
 import LatestMatch from '../LatestMatch'
 import MatchCard from '../MatchCard'
 
@@ -67,12 +68,58 @@ class TeamMatches extends Component {
   renderTeamMatches = () => {
     const {teamMatchesData} = this.state
     const {teamBannerURL, latestMatch} = teamMatchesData
+    const {recentMatches} = teamMatchesData
+    const wonMatches = recentMatches.filter(each => each.matchStatus === 'Won')
+    const lostMatches = recentMatches.filter(
+      each => each.matchStatus === 'Lost',
+    )
+    const drawnMatches = recentMatches.filter(
+      each => each.matchStatus === 'Drawn',
+    )
+    const pieData = [
+      {
+        count: wonMatches.length,
+        status: 'Won',
+      },
+      {
+        count: lostMatches.length,
+        status: 'Lost',
+      },
+      {
+        count: drawnMatches.length,
+        status: 'Drawn',
+      },
+    ]
 
     return (
       <div className="responsive-container">
         <img src={teamBannerURL} alt="team banner" className="team-banner" />
         <LatestMatch latestMatchData={latestMatch} />
         {this.renderRecentMatchesList()}
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              cx="70%"
+              cy="40%"
+              data={pieData}
+              startAngle={0}
+              endAngle={360}
+              innerRadius="40%"
+              outerRadius="70%"
+              dataKey="count"
+            >
+              <Cell name="Won" fill="#fecba6" />
+              <Cell name="Lost" fill="#b3d23f" />
+              <Cell name="Drawn" fill="#a44c9e" />
+            </Pie>
+            <Legend
+              iconType="circle"
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
+            />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     )
   }
@@ -117,6 +164,9 @@ class TeamMatches extends Component {
     return (
       <div className={className}>
         {isLoading ? this.renderLoader() : this.renderTeamMatches()}
+        <Link to="/">
+          <button type="button">Back</button>
+        </Link>
       </div>
     )
   }
